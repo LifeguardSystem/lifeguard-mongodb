@@ -2,14 +2,13 @@
 Implementation of repositories using MongoDB
 """
 from lifeguard.validations import ValidationResponse
+from lifeguard.repositories import ValidationRepository
 from pymongo import MongoClient
 
 from lifeguard_mongodb.settings import LIFEGUARD_MONGODB_DATABASE, LIFEGUARD_MONGODB_URL
 
 CLIENT = MongoClient(LIFEGUARD_MONGODB_URL)
 DATABASE = CLIENT[LIFEGUARD_MONGODB_DATABASE]
-
-from lifeguard.repositories import ValidationRepository
 
 
 def save_or_update(collection, query, data):
