@@ -1,3 +1,4 @@
+from datetime import datetime
 import unittest
 from unittest.mock import patch, MagicMock
 
@@ -29,6 +30,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
             "status": "status",
             "details": "details",
             "settings": "settings",
+            "last_execution": datetime(2020, 11, 19),
         }
 
         result = self.repository.fetch_last_validation_result(validation_name)
@@ -36,6 +38,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
         self.assertEqual(result.status, "status")
         self.assertEqual(result.details, "details")
         self.assertEqual(result.settings, "settings")
+        self.assertEqual(result.last_execution, datetime(2020, 11, 19))
         self.collection.find_one.assert_called_with(
             {"validation_name": validation_name}
         )
@@ -52,6 +55,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
                 "status": "status",
                 "details": {},
                 "settings": None,
+                "last_execution": None,
             }
         )
 
@@ -69,6 +73,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
                     "status": "status",
                     "details": {},
                     "settings": None,
+                    "last_execution": None,
                 }
             },
         )

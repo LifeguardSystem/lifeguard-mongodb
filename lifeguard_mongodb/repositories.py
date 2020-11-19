@@ -32,13 +32,23 @@ class MongoDBValidationRepository:
         save_or_update(
             self.collection,
             {"validation_name": validation_result.validation_name},
-            validation_result.__dict__,
+            {
+                "validation_name": validation_result.validation_name,
+                "status": validation_result.status,
+                "details": validation_result.details,
+                "settings": validation_result.settings,
+                "last_execution": validation_result.last_execution,
+            },
         )
 
     def fetch_last_validation_result(self, validation_name):
         result = self.collection.find_one({"validation_name": validation_name})
         if result:
             return ValidationResponse(
-                validation_name, result["status"], result["details"], result["settings"]
+                validation_name,
+                result["status"],
+                result["details"],
+                result["settings"],
+                last_execution=result["last_execution"],
             )
         return None
