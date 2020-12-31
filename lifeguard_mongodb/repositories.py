@@ -1,8 +1,8 @@
 """
 Implementation of repositories using MongoDB
 """
+from lifeguard.notifications import NotificationStatus
 from lifeguard.validations import ValidationResponse
-from lifeguard.repositories import ValidationRepository
 from pymongo import MongoClient
 
 from lifeguard_mongodb.settings import LIFEGUARD_MONGODB_DATABASE, LIFEGUARD_MONGODB_URL
@@ -51,4 +51,33 @@ class MongoDBValidationRepository:
                 result["settings"],
                 last_execution=result["last_execution"],
             )
+        return None
+
+
+class MongoDBNotificationRepository:
+    def __init__(self):
+        self.collection = DATABASE.notifications
+
+    def save_last_notification_for_a_validation(self, notification):
+        save_or_update(
+            self.collection,
+            {"validation_name": notification.validation_name},
+            {
+                "validation_name": notification.validation_name,
+                "thread_ids": notification.thread_ids,
+                "is_opened": notification.is_opened,
+                "options": notification.options,
+                "last_notification": notification.last_notification,
+            },
+        )
+
+    def fetch_last_notification_for_a_validation(self, validation_name):
+        result = self.collection.find_one({"validation_name": validation_name})
+        if result:
+            last_notification_status = NotificationStatus(
+                validation_name, result["thread_ids"], result["options"]
+            )
+            last_notification_status.last_notification = result["last_notification"]
+            last_notification_status.is_opened = result["is_opened"]
+            return last_notification_status
         return None
