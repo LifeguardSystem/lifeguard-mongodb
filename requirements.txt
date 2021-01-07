@@ -1,2 +1,2 @@
-lifeguard==0.0.6
+lifeguard==0.0.7
 pymongo==3.11.0
