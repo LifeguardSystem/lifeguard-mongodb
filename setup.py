@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="lifeguard-mongodb",
-    version="0.0.4",
+    version="0.0.5",
     url="https://github.com/LifeguardSystem/lifeguard-mongodb",
     author="Diego Rubin",
     author_email="contact@diegorubin.dev",

@@ -44,14 +44,24 @@ class MongoDBValidationRepository:
     def fetch_last_validation_result(self, validation_name):
         result = self.collection.find_one({"validation_name": validation_name})
         if result:
-            return ValidationResponse(
-                validation_name,
-                result["status"],
-                result["details"],
-                result["settings"],
-                last_execution=result["last_execution"],
-            )
+            return self.__convert_to_validation(result)
         return None
+
+    def fetch_all_validation_results(self):
+        results = []
+        for result in self.collection.find():
+            results.append(self.__convert_to_validation(result))
+
+        return results
+
+    def __convert_to_validation(self, validation_document):
+        return ValidationResponse(
+            validation_document["validation_name"],
+            validation_document["status"],
+            validation_document["details"],
+            validation_document["settings"],
+            last_execution=validation_document["last_execution"],
+        )
 
 
 class MongoDBNotificationRepository:

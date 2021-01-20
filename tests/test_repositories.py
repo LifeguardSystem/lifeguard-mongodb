@@ -31,6 +31,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
     def test_fetch_last_validation_result_not_none(self):
         validation_name = "validation"
         self.collection.find_one.return_value = {
+            "validation_name": "validation",
             "status": "status",
             "details": "details",
             "settings": "settings",
@@ -81,6 +82,26 @@ class TestMongoDBValidationRepository(unittest.TestCase):
                 }
             },
         )
+
+    def test_fetch_all_validation_results_not_none(self):
+        self.collection.find.return_value = [
+            {
+                "validation_name": "validation",
+                "status": "status",
+                "details": "details",
+                "settings": "settings",
+                "last_execution": datetime(2020, 11, 19),
+            }
+        ]
+
+        result = self.repository.fetch_all_validation_results()
+
+        self.assertEqual(result[0].validation_name, "validation")
+        self.assertEqual(result[0].status, "status")
+        self.assertEqual(result[0].details, "details")
+        self.assertEqual(result[0].settings, "settings")
+        self.assertEqual(result[0].last_execution, datetime(2020, 11, 19))
+        self.collection.find.assert_called()
 
 
 class TestMongoDBNotificationRepository(unittest.TestCase):
