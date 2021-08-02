@@ -121,7 +121,7 @@ class TestMongoDBNotificationRepository(unittest.TestCase):
 
         self.assertIsNone(result)
         self.collection.find_one.assert_called_with(
-            {"validation_name": validation_name}
+            {"validation_name": validation_name, "is_opened": True}
         )
 
     def test_fetch_last_notification_for_a_validation_not_none(self):
@@ -142,7 +142,7 @@ class TestMongoDBNotificationRepository(unittest.TestCase):
         self.assertEqual(result.options, {})
         self.assertEqual(result.last_notification, datetime(2020, 11, 19))
         self.collection.find_one.assert_called_with(
-            {"validation_name": validation_name}
+            {"validation_name": validation_name, "is_opened": True}
         )
 
     @patch("lifeguard.notifications.datetime")
@@ -174,7 +174,7 @@ class TestMongoDBNotificationRepository(unittest.TestCase):
         self.repository.save_last_notification_for_a_validation(notification_status)
 
         self.collection.update_many.assert_called_with(
-            {"validation_name": "name"},
+            {"validation_name": "name", "is_opened": True},
             {
                 "$set": {
                     "validation_name": "name",
