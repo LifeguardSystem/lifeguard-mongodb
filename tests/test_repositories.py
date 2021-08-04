@@ -174,7 +174,7 @@ class TestMongoDBNotificationRepository(unittest.TestCase):
         self.repository.save_last_notification_for_a_validation(notification_status)
 
         self.collection.update_many.assert_called_with(
-            {"validation_name": "name", "is_opened": True},
+            {"validation_name": "name"},
             {
                 "$set": {
                     "validation_name": "name",

@@ -73,7 +73,6 @@ class MongoDBNotificationRepository:
             self.collection,
             {
                 "validation_name": notification.validation_name,
-                "is_opened": notification.is_opened,
             },
             {
                 "validation_name": notification.validation_name,
