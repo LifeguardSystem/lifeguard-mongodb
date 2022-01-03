@@ -49,7 +49,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
         )
 
     def test_save_validation_result_create(self):
-        self.collection.count.return_value = 0
+        self.collection.count_documents.return_value = 0
         response = ValidationResponse("name", "status", {})
 
         self.repository.save_validation_result(response)
@@ -65,7 +65,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
         )
 
     def test_save_validation_result_update(self):
-        self.collection.count.return_value = 1
+        self.collection.count_documents.return_value = 1
         response = ValidationResponse("name", "status", {})
 
         self.repository.save_validation_result(response)
@@ -149,7 +149,7 @@ class TestMongoDBNotificationRepository(unittest.TestCase):
     def test_save_last_notification_for_a_validation_create(self, mock_datetime):
         mock_datetime.now.return_value = datetime(2020, 12, 31)
 
-        self.collection.count.return_value = 0
+        self.collection.count_documents.return_value = 0
         notification_status = NotificationStatus("name", "status", {})
 
         self.repository.save_last_notification_for_a_validation(notification_status)
@@ -168,7 +168,7 @@ class TestMongoDBNotificationRepository(unittest.TestCase):
     def test_save_last_notification_for_a_validation_update(self, mock_datetime):
         mock_datetime.now.return_value = datetime(2020, 12, 31)
 
-        self.collection.count.return_value = 1
+        self.collection.count_documents.return_value = 1
         notification_status = NotificationStatus("name", {}, {})
 
         self.repository.save_last_notification_for_a_validation(notification_status)

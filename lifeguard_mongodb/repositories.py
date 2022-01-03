@@ -18,7 +18,7 @@ def save_or_update(collection, query, data):
     :param query:
     :param data:
     """
-    if collection.count(query):
+    if collection.count_documents(query):
         collection.update_many(query, {"$set": data})
     else:
         collection.insert_one(data)
