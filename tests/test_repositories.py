@@ -1,13 +1,77 @@
 from datetime import datetime
+import json
+
 import unittest
 from unittest.mock import patch, MagicMock
 
 from lifeguard.notifications import NotificationStatus
 from lifeguard.validations import ValidationResponse
 from lifeguard_mongodb.repositories import (
+    MongoDBHistoryRepository,
     MongoDBValidationRepository,
     MongoDBNotificationRepository,
 )
+
+
+class TestMongoDBHistoryRepository(unittest.TestCase):
+    @patch("lifeguard_mongodb.repositories.DATABASE")
+    def setUp(self, mock_database):
+        self.collection = MagicMock(name="history")
+        mock_database.history = self.collection
+        self.repository = MongoDBHistoryRepository()
+
+    def test_append_notification(self):
+        notification_occurrence = MagicMock(name="notification_occurrence")
+        notification_occurrence.validation_name = "validation_name"
+        notification_occurrence.details = "details"
+        notification_occurrence.status = "status"
+        notification_occurrence.notification_type = "notification_type"
+        notification_occurrence.created_at = "created_at"
+
+        self.repository.append_notification(notification_occurrence)
+
+        self.collection.insert_one.assert_called_with(
+            {
+                "validation_name": "validation_name",
+                "details": "details",
+                "status": "status",
+                "notification_type": "notification_type",
+                "created_at": "created_at",
+            }
+        )
+
+    def test_fetch_notifications(self):
+        start_interval = MagicMock(name="start_interval")
+        end_interval = MagicMock(name="end_interval")
+        filters = {}
+
+        self.collection.find.return_value = [
+            {
+                "validation_name": "validation_name",
+                "details": "details",
+                "status": "status",
+                "notification_type": "notification_type",
+                "created_at": "created_at",
+            }
+        ]
+
+        result = self.repository.fetch_notifications(
+            start_interval, end_interval, filters
+        )
+
+        self.collection.find.assert_called_with(
+            {"created_at": {"$gte": start_interval, "$lte": end_interval}}
+        )
+        self.assertEqual(
+            result[0].__dict__,
+            {
+                "_created_at": "created_at",
+                "_details": "details",
+                "_notification_type": "notification_type",
+                "_status": "status",
+                "_validation_name": "validation_name",
+            },
+        )
 
 
 class TestMongoDBValidationRepository(unittest.TestCase):

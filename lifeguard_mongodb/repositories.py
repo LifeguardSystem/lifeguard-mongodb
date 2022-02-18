@@ -1,7 +1,7 @@
 """
 Implementation of repositories using MongoDB
 """
-from lifeguard.notifications import NotificationStatus
+from lifeguard.notifications import NotificationStatus, NotificationOccurrence
 from lifeguard.validations import ValidationResponse
 from pymongo import MongoClient
 
@@ -22,6 +22,38 @@ def save_or_update(collection, query, data):
         collection.update_many(query, {"$set": data})
     else:
         collection.insert_one(data)
+
+
+class MongoDBHistoryRepository:
+    def __init__(self):
+        self.collection = DATABASE.history
+
+    def append_notification(self, notification_occurrence):
+        self.collection.insert_one(
+            {
+                "validation_name": notification_occurrence.validation_name,
+                "details": notification_occurrence.details,
+                "status": notification_occurrence.status,
+                "notification_type": notification_occurrence.notification_type,
+                "created_at": notification_occurrence.created_at,
+            }
+        )
+
+    def fetch_notifications(self, start_interval, end_interval, filters):
+        filters.update({"created_at": {"$gte": start_interval, "$lte": end_interval}})
+        return [
+            self.__convert_to_occurrence(entry)
+            for entry in self.collection.find(filters)
+        ]
+
+    def __convert_to_occurrence(self, entry):
+        return NotificationOccurrence(
+            validation_name=entry["validation_name"],
+            details=entry["details"],
+            status=entry["status"],
+            notification_type=entry["notification_type"],
+            created_at=entry["created_at"],
+        )
 
 
 class MongoDBValidationRepository:
