@@ -3,7 +3,7 @@ Implementation of repositories using MongoDB
 """
 from lifeguard.notifications import NotificationStatus, NotificationOccurrence
 from lifeguard.validations import ValidationResponse
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING
 
 from lifeguard_mongodb.settings import LIFEGUARD_MONGODB_DATABASE, LIFEGUARD_MONGODB_URL
 
@@ -46,6 +46,8 @@ class MongoDBHistoryRepository:
 
         if page and limit:
             query = query.limit(limit).skip((page - 1) * limit)
+
+        query = query.sort("created_at", DESCENDING)
 
         return [self.__convert_to_occurrence(entry) for entry in query]
 

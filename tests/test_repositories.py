@@ -44,7 +44,10 @@ class TestMongoDBHistoryRepository(unittest.TestCase):
         end_interval = MagicMock(name="end_interval")
         filters = {}
 
-        self.collection.find.return_value = [
+        mock_sort = MagicMock(name="sort")
+
+        self.collection.find.return_value = mock_sort
+        mock_sort.sort.return_value = [
             {
                 "validation_name": "validation_name",
                 "details": "details",
@@ -61,6 +64,7 @@ class TestMongoDBHistoryRepository(unittest.TestCase):
         self.collection.find.assert_called_with(
             {"created_at": {"$gte": start_interval, "$lte": end_interval}}
         )
+        mock_sort.sort.assert_called_with("created_at", -1)
         self.assertEqual(
             result[0].__dict__,
             {
@@ -93,10 +97,12 @@ class TestMongoDBHistoryRepository(unittest.TestCase):
 
         mock_limit = MagicMock(name="limit")
         mock_skip = MagicMock(name="skip")
+        mock_sort = MagicMock(name="sort")
 
         self.collection.find.return_value = mock_limit
         mock_limit.limit.return_value = mock_skip
-        mock_skip.skip.return_value = [
+        mock_skip.skip.return_value = mock_sort
+        mock_sort.sort.return_value = [
             {
                 "validation_name": "validation_name",
                 "details": "details",
@@ -116,6 +122,7 @@ class TestMongoDBHistoryRepository(unittest.TestCase):
 
         mock_skip.skip.assert_called_with(0)
         mock_limit.limit.assert_called_with(10)
+        mock_sort.sort.assert_called_with("created_at", -1)
 
         self.assertEqual(
             result[0].__dict__,
