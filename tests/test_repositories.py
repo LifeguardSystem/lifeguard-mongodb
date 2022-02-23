@@ -1,5 +1,4 @@
 from datetime import datetime
-import json
 
 import unittest
 from unittest.mock import patch, MagicMock
@@ -56,12 +55,68 @@ class TestMongoDBHistoryRepository(unittest.TestCase):
         ]
 
         result = self.repository.fetch_notifications(
-            start_interval, end_interval, filters
+            start_interval, end_interval, filters, None, None
         )
 
         self.collection.find.assert_called_with(
             {"created_at": {"$gte": start_interval, "$lte": end_interval}}
         )
+        self.assertEqual(
+            result[0].__dict__,
+            {
+                "_created_at": "created_at",
+                "_details": "details",
+                "_notification_type": "notification_type",
+                "_status": "status",
+                "_validation_name": "validation_name",
+            },
+        )
+
+    def test_count_notifications(self):
+        start_interval = MagicMock(name="start_interval")
+        end_interval = MagicMock(name="end_interval")
+        filters = {}
+
+        result = self.repository.count_notifications(
+            start_interval, end_interval, filters
+        )
+        self.collection.count_documents.assert_called_with(
+            {"created_at": {"$gte": start_interval, "$lte": end_interval}}
+        )
+
+        self.assertIsNotNone(result)
+
+    def test_fetch_notifications_with_pagination(self):
+        start_interval = MagicMock(name="start_interval")
+        end_interval = MagicMock(name="end_interval")
+        filters = {}
+
+        mock_limit = MagicMock(name="limit")
+        mock_skip = MagicMock(name="skip")
+
+        self.collection.find.return_value = mock_limit
+        mock_limit.limit.return_value = mock_skip
+        mock_skip.skip.return_value = [
+            {
+                "validation_name": "validation_name",
+                "details": "details",
+                "status": "status",
+                "notification_type": "notification_type",
+                "created_at": "created_at",
+            }
+        ]
+
+        result = self.repository.fetch_notifications(
+            start_interval, end_interval, filters, 1, 10
+        )
+
+        self.collection.find.assert_called_with(
+            {"created_at": {"$gte": start_interval, "$lte": end_interval}}
+        )
+
+        mock_skip.skip.assert_called_with(0)
+        mock_limit.limit.assert_called_with(10)
+
         self.assertEqual(
             result[0].__dict__,
             {

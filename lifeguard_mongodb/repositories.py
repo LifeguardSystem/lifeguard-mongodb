@@ -39,12 +39,19 @@ class MongoDBHistoryRepository:
             }
         )
 
-    def fetch_notifications(self, start_interval, end_interval, filters):
+    def fetch_notifications(self, start_interval, end_interval, filters, page, limit):
         filters.update({"created_at": {"$gte": start_interval, "$lte": end_interval}})
-        return [
-            self.__convert_to_occurrence(entry)
-            for entry in self.collection.find(filters)
-        ]
+
+        query = self.collection.find(filters)
+
+        if page and limit:
+            query = query.limit(limit).skip((page - 1) * limit)
+
+        return [self.__convert_to_occurrence(entry) for entry in query]
+
+    def count_notifications(self, start_interval, end_interval, filters):
+        filters.update({"created_at": {"$gte": start_interval, "$lte": end_interval}})
+        return self.collection.count_documents(filters)
 
     def __convert_to_occurrence(self, entry):
         return NotificationOccurrence(
