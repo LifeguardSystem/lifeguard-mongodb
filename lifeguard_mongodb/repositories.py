@@ -97,11 +97,11 @@ class MongoDBValidationRepository:
 
     def __convert_to_validation(self, validation_document):
         return ValidationResponse(
-            validation_document["validation_name"],
             validation_document["status"],
             validation_document["details"],
             validation_document["settings"],
             last_execution=validation_document["last_execution"],
+            validation_name=validation_document["validation_name"],
         )
 
 

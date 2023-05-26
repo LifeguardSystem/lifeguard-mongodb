@@ -1,3 +1,2 @@
-lifeguard==0.0.41
+lifeguard==1.1.0
 pymongo==3.11.0
-markupsafe==2.0.1

@@ -3,6 +3,7 @@ from datetime import datetime
 import unittest
 from unittest.mock import patch, MagicMock
 
+from lifeguard import NORMAL
 from lifeguard.notifications import NotificationStatus
 from lifeguard.validations import ValidationResponse
 from lifeguard_mongodb.repositories import (
@@ -158,7 +159,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
         validation_name = "validation"
         self.collection.find_one.return_value = {
             "validation_name": "validation",
-            "status": "status",
+            "status": NORMAL,
             "details": "details",
             "settings": "settings",
             "last_execution": datetime(2020, 11, 19),
@@ -166,7 +167,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
 
         result = self.repository.fetch_last_validation_result(validation_name)
 
-        self.assertEqual(result.status, "status")
+        self.assertEqual(result.status, NORMAL)
         self.assertEqual(result.details, "details")
         self.assertEqual(result.settings, "settings")
         self.assertEqual(result.last_execution, datetime(2020, 11, 19))
@@ -176,14 +177,14 @@ class TestMongoDBValidationRepository(unittest.TestCase):
 
     def test_save_validation_result_create(self):
         self.collection.count_documents.return_value = 0
-        response = ValidationResponse("name", "status", {})
+        response = ValidationResponse(NORMAL, {}, validation_name="name")
 
         self.repository.save_validation_result(response)
 
         self.collection.insert_one.assert_called_with(
             {
                 "validation_name": "name",
-                "status": "status",
+                "status": NORMAL,
                 "details": {},
                 "settings": None,
                 "last_execution": None,
@@ -192,7 +193,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
 
     def test_save_validation_result_update(self):
         self.collection.count_documents.return_value = 1
-        response = ValidationResponse("name", "status", {})
+        response = ValidationResponse(NORMAL, {}, validation_name="name")
 
         self.repository.save_validation_result(response)
 
@@ -201,7 +202,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
             {
                 "$set": {
                     "validation_name": "name",
-                    "status": "status",
+                    "status": NORMAL,
                     "details": {},
                     "settings": None,
                     "last_execution": None,
@@ -213,7 +214,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
         self.collection.find.return_value = [
             {
                 "validation_name": "validation",
-                "status": "status",
+                "status": NORMAL,
                 "details": "details",
                 "settings": "settings",
                 "last_execution": datetime(2020, 11, 19),
@@ -223,7 +224,7 @@ class TestMongoDBValidationRepository(unittest.TestCase):
         result = self.repository.fetch_all_validation_results()
 
         self.assertEqual(result[0].validation_name, "validation")
-        self.assertEqual(result[0].status, "status")
+        self.assertEqual(result[0].status, NORMAL)
         self.assertEqual(result[0].details, "details")
         self.assertEqual(result[0].settings, "settings")
         self.assertEqual(result[0].last_execution, datetime(2020, 11, 19))
