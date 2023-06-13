@@ -95,6 +95,9 @@ class MongoDBValidationRepository:
 
         return results
 
+    def delete_validation_result(self, validation_name):
+        self.collection.delete_one({"validation_name": validation_name})
+
     def __convert_to_validation(self, validation_document):
         return ValidationResponse(
             validation_document["status"],

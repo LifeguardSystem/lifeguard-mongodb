@@ -230,6 +230,12 @@ class TestMongoDBValidationRepository(unittest.TestCase):
         self.assertEqual(result[0].last_execution, datetime(2020, 11, 19))
         self.collection.find.assert_called()
 
+    def test_delete_validation_result(self):
+        self.repository.delete_validation_result("validation_name")
+        self.collection.delete_one.assert_called_with(
+            {"validation_name": "validation_name"}
+        )
+
 
 class TestMongoDBNotificationRepository(unittest.TestCase):
     @patch("lifeguard_mongodb.repositories.DATABASE")
